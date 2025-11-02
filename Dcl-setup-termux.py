@@ -1,72 +1,56 @@
 #!/bin/bash
 
-CONFIG_FILE="$HOME/.dcl_config"
+# =========================================================
+# DCL SYSTEM SETUP - Premium Ultra
+# By Doctor Coringa Lunático
+# =========================================================
 
-# Função para animação de carregamento
+CONFIG_FILE="$HOME/.dcl_config"
+TERMUX_COLORS="$HOME/.termux/colors.properties"
+
 loading_bar() {
-  local msg=$1
+  local msg="$1"
   echo -ne "\n$msg "
-  for i in {1..20}; do
+  for i in {1..25}; do
     echo -ne "▓"
-    sleep 0.08
+    sleep 0.05
   done
-  echo -e "  ✅"
-  sleep 0.5
+  echo -e " ✅"
+  sleep 0.2
 }
 
-# Função para mostrar cores
 show_colors() {
+  echo -e "\033[1;30m[0]\033[0m Preto"
   echo -e "\033[1;31m[1]\033[0m Vermelho"
   echo -e "\033[1;32m[2]\033[0m Verde"
   echo -e "\033[1;33m[3]\033[0m Amarelo"
   echo -e "\033[1;34m[4]\033[0m Azul"
-  echo -e "\033[1;35m[5]\033[0m Roxo"
+  echo -e "\033[1;35m[5]\033[0m Magenta/Rosa"
   echo -e "\033[1;36m[6]\033[0m Ciano"
   echo -e "\033[1;37m[7]\033[0m Branco"
+  echo -e "\033[1;90m[8]\033[0m Cinza Escuro"
+  echo -e "\033[1;91m[9]\033[0m Vermelho Claro"
+  echo -e "\033[1;92m[10]\033[0m Verde Claro"
+  echo -e "\033[1;93m[11]\033[0m Amarelo Claro"
+  echo -e "\033[1;94m[12]\033[0m Azul Claro"
+  echo -e "\033[1;95m[13]\033[0m Rosa Claro"
+  echo -e "\033[1;96m[14]\033[0m Ciano Claro"
+  echo -e "\033[1;97m[15]\033[0m Branco Brilhante"
 }
 
-# Função para mostrar estilos de fonte
-show_fonts() {
-  echo "[1] Normal"
-  echo "[2] Negrito"
+show_styles() {
+  echo "[0] Normal"
+  echo "[1] Negrito"
+  echo "[2] Sublinhado"
   echo "[3] Itálico"
-  echo "[4] Sublinhado"
+  echo "[4] Piscante"
+  echo "[5] Invertido"
+  echo "[6] 3D / Sombra"
 }
 
-# Tela inicial
-clear
-echo -e "\033[1;35m"
-echo "╔════════════════════════════════════════════════════╗"
-echo "║             🌀 DCL SYSTEM INSTALLER 🌀              ║"
-echo "║               by Doctor Coringa Lunático           ║"
-echo "╚════════════════════════════════════════════════════╝"
-echo -e "\033[0m"
-sleep 1
-
-echo -e "\033[1;36mBem-vindo ao sistema de personalização DCL System!"
-sleep 1
-echo "Aqui você poderá criar seu próprio tema visual do Termux!"
-sleep 2
-echo -e "\033[0m"
-
-# Inputs
-read -p "🖋️ Digite o texto do seu banner: " user_banner
-echo ""
-echo "🎨 Escolha a cor do texto principal:"
-show_colors
-read -p "Número da cor: " text_color_choice
-echo ""
-echo "🎨 Escolha a cor de fundo:"
-show_colors
-read -p "Número da cor: " bg_color_choice
-echo ""
-echo "🖋️ Escolha o tipo de fonte:"
-show_fonts
-read -p "Número da fonte: " font_choice
-
-# Traduz cores
 get_color_code() {
   case $1 in
+    0) echo "30" ;;
     1) echo "31" ;;
     2) echo "32" ;;
     3) echo "33" ;;
@@ -74,55 +58,109 @@ get_color_code() {
     5) echo "35" ;;
     6) echo "36" ;;
     7) echo "37" ;;
+    8) echo "90" ;;
+    9) echo "91" ;;
+    10) echo "92" ;;
+    11) echo "93" ;;
+    12) echo "94" ;;
+    13) echo "95" ;;
+    14) echo "96" ;;
+    15) echo "97" ;;
     *) echo "37" ;;
   esac
 }
 
+get_style_code() {
+  case $1 in
+    0) echo "0" ;;
+    1) echo "1" ;;
+    2) echo "4" ;;
+    3) echo "3" ;;
+    4) echo "5" ;;
+    5) echo "7" ;;
+    6) echo "8" ;;
+    *) echo "0" ;;
+  esac
+}
+
+# ==================== Tela Inicial ====================
+clear
+echo -e "\033[1;35m"
+echo "╔════════════════════════════════════════╗"
+echo "║        🌀 DCL SYSTEM INSTALLER 🌀      ║"
+echo "╚════════════════════════════════════════╝"
+echo -e "\033[0m"
+sleep 0.8
+echo -e "\033[1;36mBem-vindo ao DCL System Setup Premium Ultra!\033[0m"
+sleep 0.8
+echo "Aqui você vai criar seu próprio tema completo do Termux!"
+sleep 0.8
+
+# -------------------- Inputs do usuário --------------------
+read -p "🖋️ Digite o texto do seu banner: " user_banner
+echo ""
+echo "🎨 Escolha a cor do texto principal:"
+show_colors
+read -p "Número da cor: " text_color_choice
+echo ""
+echo "🎨 Escolha a cor de fundo do texto:"
+show_colors
+read -p "Número da cor: " bg_color_choice
+echo ""
+echo "🖋️ Escolha o estilo do texto:"
+show_styles
+read -p "Número do estilo: " style_choice
+echo ""
+read -p "Digite o nome que quer ver no prompt: " user_prompt_name
+echo ""
+echo "🎨 Escolha a cor de fundo oficial do Termux (HEX, ex: #000000): "
+read -p "Digite a cor: " termux_bg_color
+
+# -------------------- Processando escolhas --------------------
 text_color=$(get_color_code $text_color_choice)
 bg_color=$(get_color_code $bg_color_choice)
-style_code="0"
-case $font_choice in
-  1) style_code="0" ;;
-  2) style_code="1" ;;
-  3) style_code="3" ;;
-  4) style_code="4" ;;
-esac
+style_code=$(get_style_code $style_choice)
 
-clear
-echo -e "\033[1;35m🔧 Aplicando seu tema personalizado...\033[0m"
-sleep 0.8
-loading_bar "🎨 Configurando cores"
-loading_bar "🖋️ Aplicando fontes"
+# -------------------- Aplicando mudanças --------------------
+echo -e "\n🔧 Aplicando seu tema..."
+loading_bar "🎨 Configurando cores e fontes"
+loading_bar "🖋️ Criando banner estilizado"
 loading_bar "⚙️ Salvando preferências"
-loading_bar "✨ Finalizando instalação"
+loading_bar "✨ Atualizando cor de fundo do Termux"
 
 # Salva configurações
-echo "$user_banner|$text_color|$bg_color|$style_code" > "$CONFIG_FILE"
+echo "$user_banner|$text_color|$bg_color|$style_code|$user_prompt_name" > "$CONFIG_FILE"
 
-# Cria o bashrc
+# Atualiza cor de fundo oficial do Termux
+mkdir -p ~/.termux
+echo "background=$termux_bg_color" > "$TERMUX_COLORS"
+termux-reload-settings
+
+# -------------------- Cria .bashrc customizado --------------------
 cat > "$HOME/.bashrc" <<'EOF'
 clear
-config_file="$HOME/.dcl_config"
-if [ -f "$config_file" ]; then
-  IFS='|' read -r user_banner text_color bg_color style_code < "$config_file"
+CONFIG_FILE="$HOME/.dcl_config"
+if [ -f "$CONFIG_FILE" ]; then
+  IFS='|' read -r banner text_color bg_color style_code prompt_name < "$CONFIG_FILE"
+
+  # Banner dentro de caixinha
   echo -e "\033[${style_code};${text_color};4${bg_color}m"
-  echo "╔════════════════════════════════════════════════════╗"
-  echo "║                🌀 DCL SYSTEM 🌀                     ║"
-  echo "║          by Doctor Coringa Lunático                ║"
-  echo "╚════════════════════════════════════════════════════╝"
-  echo ""
-  echo -e "💫 $user_banner"
+  echo "╔════════════════════════════════╗"
+  printf "║ %-30s ║\n" "$banner"
+  echo "╚════════════════════════════════╝"
   echo -e "\033[0m"
-else
-  echo "DCL System - configuração não encontrada."
+
+  # Prompt dentro de caixinha + símbolo
+  PS1="╔═[$prompt_name]═╗ ➜ \w > "
 fi
 EOF
 
+# -------------------- Alias global --------------------
+echo "alias dclsetup='bash ~/dcl-setup-termux.sh'" >> ~/.bashrc
+
+# Finalização
 sleep 0.5
 clear
 echo -e "\033[1;32m✅ Instalação concluída com sucesso!\033[0m"
-sleep 0.5
-echo ""
-echo -e "\033[1;36mAgradecemos por usar o DCL System 💙"
-echo "Criado por Doctor Coringa Lunático 🌀"
-echo -e "Feche e reabra o Termux para ver o novo visual!\033[0m"
+echo -e "\033[1;36m💙 Obrigado por usar DCL System Setup Premium Ultra!\033[0m"
+echo -e "\033[1;36mFeche e abra o Termux e digite 'dclsetup' para rodar novamente seu setup!\033[0m"
